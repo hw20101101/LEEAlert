@@ -206,7 +206,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
     
     return ^(NSString *str){
         
-        return self.LeeAddTitle(^(UILabel *label) {
+        return self.LeeAddTitle(^(LEEItemLabel *label) {
             
             label.text = str;
         });
@@ -303,7 +303,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
 
 - (LEEConfigToConfigLabel)LeeAddTitle{
     
-    return ^(void(^block)(UILabel *)){
+    return ^(void(^block)(LEEItemLabel *)){
         
         return self.LeeAddItem(^(LEEItem *item) {
             
@@ -320,7 +320,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
 
 - (LEEConfigToConfigLabel)LeeAddContent{
     
-    return ^(void(^block)(UILabel *)){
+    return ^(void(^block)(LEEItemLabel *)){
         
         return self.LeeAddItem(^(LEEItem *item) {
             
@@ -858,7 +858,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
             
             item.type = LEEItemTypeTextField;
             
-            item.insets = UIEdgeInsetsMake(0, 0, 0, 0);
+            item.insets = UIEdgeInsetsMake(5, 0, 0, 0);
             
             item.block = block;
         });
@@ -1433,16 +1433,6 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
     
     return [[LEEItemView alloc] init];
 }
-
-@end
-
-@interface LEEItemLabel : UILabel
-
-@property (nonatomic , strong ) LEEItem *item;
-
-@property (nonatomic , copy ) void (^textChangedBlock)(void);
-
-+ (LEEItemLabel *)label;
 
 @end
 
@@ -2267,15 +2257,23 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             
             if ([item isKindOfClass:UILabel.class]) {
                 
-                if (view.item.type == LEEItemTypeTitle) {//change 1124
-                    viewFrame.size.height = TITLE_VIEW_HEIGHT;
-                    viewFrame.origin.y = 0;
+                LEEItemLabel *label = item; // change 1124
+                
+                if (label.positionType == LEECustomViewPositionTypeTop) {//label位于父视图顶部
+                     
+                    if (view.item.type == LEEItemTypeTitle) {//标题
+                        viewFrame.size.height = TITLE_VIEW_HEIGHT;
+                        viewFrame.origin.y = 0;
+    
+                        //添加背景视图
+                        [self.alertView insertSubview:self.titleBgView belowSubview:view];
+                        
+                    } else {//内容
+                        viewFrame.origin.y = TITLE_VIEW_HEIGHT + 20;
+                        viewFrame.size.height = [item sizeThatFits:CGSizeMake(viewFrame.size.width, MAXFLOAT)].height;
+                    }
                     
-                    //添加背景视图
-                    [self.alertView insertSubview:self.titleBgView belowSubview:view];
-                    
-                } else {
-                    viewFrame.origin.y = TITLE_VIEW_HEIGHT + 20; //change 1124
+                } else {//label位于父视图中间
                     viewFrame.size.height = [item sizeThatFits:CGSizeMake(viewFrame.size.width, MAXFLOAT)].height;
                 }
             }
@@ -2284,7 +2282,7 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             
             alertViewHeight += view.frame.size.height + view.item.insets.top + view.item.insets.bottom;
             
-        } else if ([item isKindOfClass:LEECustomView.class]) {
+        } else if ([item isKindOfClass:LEECustomView.class]) {//change 1125
             
             LEECustomView *custom = (LEECustomView *)item;
             
@@ -2292,29 +2290,39 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             
             if (custom.isAutoWidth) {
                 
-                custom.positionType = LEECustomViewPositionTypeCenter;
-                
-                viewFrame.size.width = alertViewMaxWidth - self.config.modelHeaderInsets.left - custom.item.insets.left - self.config.modelHeaderInsets.right - custom.item.insets.right;
+                if (custom.positionType == LEECustomViewPositionTypeTop) {
+                    //此处无需处理
+                    
+                } else {
+                    custom.positionType = LEECustomViewPositionTypeCenter;
+                    viewFrame.size.width = alertViewMaxWidth - self.config.modelHeaderInsets.left - custom.item.insets.left - self.config.modelHeaderInsets.right - custom.item.insets.right;
+                }
             }
             
             switch (custom.positionType) {
                 case LEECustomViewPositionTypeCenter:
+                    viewFrame.origin.y = alertViewHeight + custom.item.insets.top;
                     viewFrame.origin.x = (alertViewMaxWidth - viewFrame.size.width) * 0.5f;
                     break;
                     
                 case LEECustomViewPositionTypeLeft:
+                    viewFrame.origin.y = alertViewHeight + custom.item.insets.top;
                     viewFrame.origin.x = self.config.modelHeaderInsets.left + custom.item.insets.left;
                     break;
                 
                 case LEECustomViewPositionTypeRight:
+                    viewFrame.origin.y = alertViewHeight + custom.item.insets.top;
                     viewFrame.origin.x = alertViewMaxWidth - self.config.modelHeaderInsets.right - custom.item.insets.right - viewFrame.size.width;
                     break;
+                    
+                case LEECustomViewPositionTypeTop://父视图的顶部
+                    viewFrame.origin.x = 0;
+                    viewFrame.origin.y = 0;
+                    viewFrame.size.width = self.alertView.frame.size.width;
                     
                 default:
                     break;
             }
-            
-            viewFrame.origin.y = alertViewHeight + custom.item.insets.top;
             
             custom.container.frame = viewFrame;
             
@@ -2422,14 +2430,6 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
                 label.textAlignment = NSTextAlignmentCenter;
                 label.font = [UIFont boldSystemFontOfSize:16.0f];
                 label.textColor = [UIColor whiteColor];
-                
-//                if (@available(iOS 13.0, *)) {
-//                    label.textColor = [UIColor labelColor];
-//
-//                } else {
-//                    label.textColor = [UIColor blackColor];
-//                }
-                
                 label.numberOfLines = 0;
                 
                 if (block) block(label);

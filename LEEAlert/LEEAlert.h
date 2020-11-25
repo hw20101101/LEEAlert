@@ -323,6 +323,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface LEEItemLabel : UILabel
+
+@property (nonatomic , strong ) LEEItem *item;
+
+/** Label位置类型 (默认为垂直居中) */
+@property (nonatomic , assign ) LEELabelPositionType positionType;
+
+@property (nonatomic , copy ) void (^textChangedBlock)(void);
+
++ (LEEItemLabel *)label;
+
+@end
+
 @interface LEEAction : NSObject
 
 /** action类型 */

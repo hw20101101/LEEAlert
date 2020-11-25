@@ -30,6 +30,7 @@ FOUNDATION_EXPORT const unsigned char LEEAlertVersionString[];
 , LEEAlertWindow
 , LEEAction
 , LEEItem
+, LEEItemLabel
 , LEECustomView;
 
 typedef NS_ENUM(NSInteger, LEEScreenOrientationType) {
@@ -83,12 +84,21 @@ typedef NS_ENUM(NSInteger, LEEItemType) {
 
 
 typedef NS_ENUM(NSInteger, LEECustomViewPositionType) {
-    /** 居中 */
+    /** 居中，默认 */
     LEECustomViewPositionTypeCenter,
     /** 靠左 */
     LEECustomViewPositionTypeLeft,
     /** 靠右 */
-    LEECustomViewPositionTypeRight
+    LEECustomViewPositionTypeRight,
+    /** 位于父视图的顶部，有自定义控件时使用 */
+    LEECustomViewPositionTypeTop
+};
+
+typedef NS_ENUM(NSInteger, LEELabelPositionType) {
+    /** 位于父视图的顶部，Title 默认此值 */
+    LEELabelPositionTypeTop,
+    /** 位于父视图的中间，有自定义控件时使用/Content 默认此值 */
+    LEELabelPositionTypeCenter
 };
 
 typedef NS_OPTIONS(NSInteger, LEEAnimationStyle) {
@@ -138,7 +148,7 @@ typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToAction)(void(^)(LEEAction *ac
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToCustomView)(void(^)(LEECustomView *custom));
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToCornerRadii)(CornerRadii);
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToStringAndBlock)(NSString *str, void (^ _Nullable)(void));
-typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToConfigLabel)(void(^ _Nullable)(UILabel *label));
+typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToConfigLabel)(void(^ _Nullable)(LEEItemLabel *label));
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToConfigTextField)(void(^ _Nullable)(UITextField *textField));
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToItem)(void(^)(LEEItem *item));
 typedef LEEBaseConfigModel * _Nonnull (^LEEConfigToBlock)(void(^block)(void));

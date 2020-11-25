@@ -135,7 +135,10 @@
         case 0:
         {
             [LEEAlert alert].config
-            .LeeTitle(@"标题")
+            .LeeAddTitle(^(LEEItemLabel *label){
+                label.text = @"默认标题";
+                label.positionType = LEECustomViewPositionTypeTop;
+            })
             .LeeContent(@"内容")
             .LeeCancelAction(@"取消取消取消取消取消取消取消取消取消", ^{
                 
@@ -156,23 +159,25 @@
             __block UITextField *tf = nil;
             
             [LEEAlert alert].config
-            .LeeTitle(@"标题")
+            .LeeTitle(@"⚠️标题")
             .LeeContent(@"内容")
             .LeeAddTextField(^(UITextField *textField) {
                 
                 // 这里可以进行自定义的设置
                 
                 textField.placeholder = @"输入框";
+ 
+                tf = textField; //赋值
                 
-                if (@available(iOS 13.0, *)) {
-                    textField.textColor = [UIColor secondaryLabelColor];
-                    
-                } else {
-                    textField.textColor = [UIColor darkGrayColor];
-                }
+            }).LeeAddTextField(^(UITextField *textField) {
                 
+                // 这里可以进行自定义的设置
+                
+                textField.placeholder = @"输入框22";
+ 
                 tf = textField; //赋值
             })
+            .LeeCancelAction(@"取消", nil) // 点击事件的Block如果不需要可以传nil
             .LeeAction(@"好的", ^{
               
             })
@@ -183,7 +188,6 @@
                 result = index == 0 ? result : YES;
                 return result;
             })
-            .LeeCancelAction(@"取消", nil) // 点击事件的Block如果不需要可以传nil
             .LeeShow();
         }
             break;
@@ -209,31 +213,26 @@
             
         case 3:
         {
-            UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 100)];
-            
-            view.backgroundColor = [UIColor colorWithRed:43/255.0f green:133/255.0f blue:208/255.0f alpha:1.0f];
-            
-            [view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapAction:)]];
+            UIView *customView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 100)];
+            customView.backgroundColor = [UIColor blueColor];
+            [customView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapAction:)]];
             
             [LEEAlert alert].config
-            .LeeTitle(@"标题")
             .LeeAddCustomView(^(LEECustomView *custom) {
                 
-                custom.view = view;
-                
+                custom.view = customView;
                 custom.isAutoWidth = YES;
+                custom.positionType = LEECustomViewPositionTypeTop;
                 
-//                custom.positionType = LEECustomViewPositionTypeRight;
+            }).LeeAddTitle(^(LEEItemLabel *label){
+                
+                label.text = @"带自定义视图";
+                label.textColor = [UIColor blackColor];
+                label.positionType = LEECustomViewPositionTypeCenter;
             })
-            .LeeItemInsets(UIEdgeInsetsMake(30, 10, 30, 10)) // 想为哪一项设置间距范围 直接在其后面设置即可 ()
             .LeeContent(@"内容")
-            .LeeItemInsets(UIEdgeInsetsMake(10, 10, 10, 10)) // 这个间距范围就是对content设置的
-            .LeeAddTextField(^(UITextField *textField) {
-                
-                textField.placeholder = @"输入框";
-            })
-            .LeeAction(@"确认", nil)
             .LeeCancelAction(@"取消", nil)
+            .LeeAction(@"确认", nil)
             .LeeShow();
         }
             break;

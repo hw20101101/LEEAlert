@@ -236,7 +236,7 @@
         case 5:
         {
             [LEEAlert actionsheet].config
-            .LeeAddTitle(^(UILabel *label) {
+            .LeeAddTitle(^(LEEItemLabel *label) {
                 
                 label.text = @"已经退出该群组";
                 
@@ -244,7 +244,7 @@
                 
                 label.textAlignment = NSTextAlignmentLeft;
             })
-            .LeeAddContent(^(UILabel *label) {
+            .LeeAddContent(^(LEEItemLabel *label) {
                 
                 label.text = @"以后将不会再收到该群组的任何消息";
                 

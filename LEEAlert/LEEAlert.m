@@ -28,6 +28,7 @@
 #define VIEW_HEIGHT CGRectGetHeight(self.view.frame)
 #define DEFAULTBORDERWIDTH (1.0f / [[UIScreen mainScreen] scale] + 0.02f)
 #define VIEWSAFEAREAINSETS(view) ({UIEdgeInsets i; if(@available(iOS 11.0, *)) {i = view.safeAreaInsets;} else {i = UIEdgeInsetsZero;} i;})
+#define TITLE_VIEW_HEIGHT 45
 
 #pragma mark - ===================配置模型===================
 
@@ -247,7 +248,9 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
         
         return self.LeeAddAction(^(LEEAction *action) {
             
-            action.type = LEEActionTypeDefault;
+            action.type = LEEActionTypeDefault; //右侧-确认按钮
+            
+            action.titleColor = [UIColor colorWithRed:0.22 green:0.77 blue:1.0 alpha:1.0];
             
             action.title = title;
             
@@ -264,9 +267,11 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
         
         return self.LeeAddAction(^(LEEAction *action) {
             
-            action.type = LEEActionTypeCancel;
+            action.type = LEEActionTypeCancel; //左侧-取消按钮
             
             action.title = title;
+            
+            action.titleColor = [UIColor colorWithRed:0.67 green:0.67 blue:0.67 alpha:1.0];
             
             action.font = [UIFont systemFontOfSize:16.0f];
             
@@ -853,7 +858,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
             
             item.type = LEEItemTypeTextField;
             
-            item.insets = UIEdgeInsetsMake(10, 0, 10, 0);
+            item.insets = UIEdgeInsetsMake(0, 0, 0, 0);
             
             item.block = block;
         });
@@ -2229,8 +2234,8 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
     }
     
     if (!_titleBgView) {
-        _titleBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.alertView.frame.size.width, 45)];
-        _titleBgView.backgroundColor = [UIColor greenColor];
+        _titleBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.alertView.frame.size.width, TITLE_VIEW_HEIGHT)];
+        _titleBgView.backgroundColor = [UIColor colorWithRed:0.22 green:0.77 blue:1.00 alpha:1.00];
     }
     return _titleBgView;
 }
@@ -2263,14 +2268,14 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             if ([item isKindOfClass:UILabel.class]) {
                 
                 if (view.item.type == LEEItemTypeTitle) {//change 1124
-                    viewFrame.size.height = 45;
+                    viewFrame.size.height = TITLE_VIEW_HEIGHT;
                     viewFrame.origin.y = 0;
                     
                     //添加背景视图
                     [self.alertView insertSubview:self.titleBgView belowSubview:view];
                     
                 } else {
-                    viewFrame.origin.y = 65; //change 1124
+                    viewFrame.origin.y = TITLE_VIEW_HEIGHT + 20; //change 1124
                     viewFrame.size.height = [item sizeThatFits:CGSizeMake(viewFrame.size.width, MAXFLOAT)].height;
                 }
             }
@@ -2415,15 +2420,15 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
                 [self.alertItemArray addObject:label];
                 
                 label.textAlignment = NSTextAlignmentCenter;
-                
                 label.font = [UIFont boldSystemFontOfSize:16.0f];
+                label.textColor = [UIColor whiteColor];
                 
-                if (@available(iOS 13.0, *)) {
-                    label.textColor = [UIColor labelColor];
-                    
-                } else {
-                    label.textColor = [UIColor blackColor];
-                }
+//                if (@available(iOS 13.0, *)) {
+//                    label.textColor = [UIColor labelColor];
+//
+//                } else {
+//                    label.textColor = [UIColor blackColor];
+//                }
                 
                 label.numberOfLines = 0;
                 
@@ -2496,8 +2501,8 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             case LEEItemTypeTextField:
             {
                 LEEItemTextField *textField = [LEEItemTextField textField];
-                
-                textField.frame = CGRectMake(0, 0, 0, 40.0f);
+                textField.font = [UIFont systemFontOfSize:14];
+                textField.frame = CGRectMake(0, 0, 0, 35.0f);
                 
                 [self.alertView addSubview:textField];
                 

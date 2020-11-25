@@ -118,6 +118,8 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
         _modelShadowOpacity = 0.3f; //默认阴影不透明度
         _modelShadowRadius = 5.0f; //默认阴影半径
         _modelShadowOffset = CGSizeMake(0.0f, 2.0f); //默认阴影偏移
+        
+        //mark 1124
         _modelHeaderInsets = UIEdgeInsetsMake(20.0f, 20.0f, 20.0f, 20.0f); //默认间距
         _modelOpenAnimationDuration = 0.3f; //默认打开动画时长
         _modelCloseAnimationDuration = 0.2f; //默认关闭动画时长
@@ -266,7 +268,7 @@ typedef NS_ENUM(NSInteger, LEEBackgroundStyle) {
             
             action.title = title;
             
-            action.font = [UIFont boldSystemFontOfSize:18.0f];
+            action.font = [UIFont systemFontOfSize:16.0f];
             
             action.clickBlock = block;
         });
@@ -2071,6 +2073,8 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
 
 @property (nonatomic , strong ) NSMutableArray <LEEActionButton *>*alertActionArray;
 
+@property (strong, nonatomic) UIView *titleBgView;
+
 @end
 
 @implementation LEEAlertViewController
@@ -2217,6 +2221,20 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
     }
 }
 
+//change 1124
+-(UIView *)titleBgView
+{
+    if (self.alertView.frame.size.width == 0) {//父视图尚未初始化完成
+        return nil;
+    }
+    
+    if (!_titleBgView) {
+        _titleBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.alertView.frame.size.width, 45)];
+        _titleBgView.backgroundColor = [UIColor greenColor];
+    }
+    return _titleBgView;
+}
+
 - (CGFloat)updateAlertItemsLayout{
     
     [CATransaction begin];
@@ -2242,7 +2260,20 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
             
             viewFrame.size.width = alertViewMaxWidth - viewFrame.origin.x - self.config.modelHeaderInsets.right - view.item.insets.right - VIEWSAFEAREAINSETS(view).left - VIEWSAFEAREAINSETS(view).right;
             
-            if ([item isKindOfClass:UILabel.class]) viewFrame.size.height = [item sizeThatFits:CGSizeMake(viewFrame.size.width, MAXFLOAT)].height;
+            if ([item isKindOfClass:UILabel.class]) {
+                
+                if (view.item.type == LEEItemTypeTitle) {//change 1124
+                    viewFrame.size.height = 45;
+                    viewFrame.origin.y = 0;
+                    
+                    //添加背景视图
+                    [self.alertView insertSubview:self.titleBgView belowSubview:view];
+                    
+                } else {
+                    viewFrame.origin.y = 65; //change 1124
+                    viewFrame.size.height = [item sizeThatFits:CGSizeMake(viewFrame.size.width, MAXFLOAT)].height;
+                }
+            }
             
             view.frame = viewFrame;
             
@@ -2373,7 +2404,7 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
         
         switch (item.type) {
                 
-            case LEEItemTypeTitle:
+            case LEEItemTypeTitle: //change 1124 标题
             {
                 void(^block)(UILabel *label) = item.block;
                 
@@ -2385,7 +2416,7 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
                 
                 label.textAlignment = NSTextAlignmentCenter;
                 
-                label.font = [UIFont boldSystemFontOfSize:18.0f];
+                label.font = [UIFont boldSystemFontOfSize:16.0f];
                 
                 if (@available(iOS 13.0, *)) {
                     label.textColor = [UIColor labelColor];
@@ -2496,7 +2527,7 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
         
         if (block) block(action);
         
-        if (!action.font) action.font = [UIFont systemFontOfSize:18.0f];
+        if (!action.font) action.font = [UIFont systemFontOfSize:16.0f];
         
         if (!action.title) action.title = @"按钮";
         
@@ -3231,7 +3262,7 @@ CGPathRef _Nullable LEECGPathCreateWithRoundedRect(CGRect bounds, CornerRadii co
         
         if (block) block(action);
         
-        if (!action.font) action.font = [UIFont systemFontOfSize:18.0f];
+        if (!action.font) action.font = [UIFont systemFontOfSize:16.0f];
         
         if (!action.title) action.title = @"按钮";
         
